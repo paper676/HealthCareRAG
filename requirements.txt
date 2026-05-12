@@ -10,3 +10,7 @@ transformers
 huggingface-hub
 sentence-transformers
 langchain-chroma
+
+ragas
+datasets
+accelerate

@@ -1,12 +1,27 @@
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpoint, ChatHuggingFace
 from langchain_core.prompts import ChatPromptTemplate
+
+import os
 from dotenv import load_dotenv
+load_dotenv()
+
+from datasets import Dataset
+from ragas import evaluate
+from ragas.metrics import (
+    faithfulness,
+    answer_relevancy
+)
+ragas_hf_llm = HuggingFaceEndpoint(
+    repo_id="Qwen/Qwen2.5-7B-Instruct",
+    task="conversational",
+    temperature=0.0,
+    max_new_tokens=512
+)
+ragas_llm = ChatHuggingFace(llm=ragas_hf_llm)
 
 from langchain_core.messages import HumanMessage, AIMessage
 chat_history = []
-
-load_dotenv()
 
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
@@ -67,14 +82,33 @@ def ask(q):
     # result = chain.invoke({"query": q})
     result = chain.invoke({"query": rewriten_q})
 
-    for i,doc in enumerate(docs,1):
-        print(f"--Source {i} --")
-        print(f"Answer Scourced from {doc.metadata['source']},page {doc.metadata['page']}")
-
+    print("\nAnswer:\n", result.content)
+    
     chat_history.append(HumanMessage(content=q))
     chat_history.append(AIMessage(content=result.content))
 
-    print("\nAnswer:\n", result.content)
+    # for i,doc in enumerate(docs,1):
+    #     print(f"--Source {i} --")
+    #     print(f"Answer Scourced from {doc.metadata['source']},page {doc.metadata['page']}")
+
+    ragas_dataset = Dataset.from_dict({
+        "question": [rewriten_q],
+        "answer": [result.content],
+        "contexts": [[doc.page_content for doc in docs]]
+    })
+
+    scores = evaluate(
+        ragas_dataset,
+        metrics=[
+            faithfulness,
+            answer_relevancy
+        ],
+        llm=ragas_llm,
+        embeddings=embeddings
+    )
+
+    print("\nRAGAS Evaluation Metrics")
+    print(scores)
 
 if __name__ == "__main__":
     while True:
