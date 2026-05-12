@@ -41,9 +41,9 @@ def ask(q):
     # print(rewriten_q)
 
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "Answer the question using ONLY the context below. If you don't know, say 'I don't know',Do NOT infer or guess."),
-        ("system", "Conversation history:\n{chat_history}"),
-        ("human", "Context:\n{context}\n\nQuestion:\n{question}")
+        ("system", "Answer the question using ONLY the context below,also conversation history if not empty. If you don't know, say 'I don't know',Do NOT infer or guess."),
+        # ("system", "Conversation history:\n{chat_history}"),
+        ("human", "Conversation history:\n{chat_history}\n\nContext:\n{context}\n\nQuestion:\n{question}")
     ])
 
     chain = (
