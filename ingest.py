@@ -8,8 +8,8 @@ loader=PyPDFLoader('Abc.pdf')
 docs=loader.load()
 
 splitter=RecursiveCharacterTextSplitter(
-    chunk_size=100,
-    chunk_overlap=10
+    chunk_size=300,
+    chunk_overlap=60
 )
 chunks=splitter.split_documents(docs)
 

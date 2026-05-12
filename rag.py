@@ -16,9 +16,11 @@ vector_store = Chroma(
     collection_name='sample'
 )
 
-retriever = vector_store.as_retriever(search_kwargs={"k": 2})
+retriever = vector_store.as_retriever(search_kwargs={"k": 5})
+
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
+
 def ask(q):
     
     llm = HuggingFaceEndpoint(
@@ -28,6 +30,15 @@ def ask(q):
     )
 
     chat_model = ChatHuggingFace(llm=llm)
+
+    rewrite=ChatPromptTemplate.from_messages([
+        ("system","Rewrite the user promt to be better for document search."),
+        ("human","{question}")
+    ])
+    rewriteChain= rewrite | chat_model
+    rewriten_q=rewriteChain.invoke({"question": q}).content
+
+    # print(rewriten_q)
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", "Answer the question using ONLY the context below. If you don't know, say 'I don't know',Do NOT infer or guess."),
@@ -47,10 +58,22 @@ def ask(q):
         | prompt
         | chat_model
     )
+    
+    docs=retriever.invoke(rewriten_q)
+    # for i,doc in enumerate(docs,1):
+    #     print(f"--Result {i} --")
+    #     print(doc.page_content)
 
-    result = chain.invoke({"query": q})
+    # result = chain.invoke({"query": q})
+    result = chain.invoke({"query": rewriten_q})
+
+    for i,doc in enumerate(docs,1):
+        print(f"--Source {i} --")
+        print(f"Answer Scourced from {doc.metadata['source']},page {doc.metadata['page']}")
+
     chat_history.append(HumanMessage(content=q))
     chat_history.append(AIMessage(content=result.content))
+
     print("\nAnswer:\n", result.content)
 
 if __name__ == "__main__":
