@@ -1,8 +1,7 @@
-# Healthcare RAG System with Faithfulness Evaluation
+# Document Intelligence RAG System with Faithfulness Evaluation
 
-A production-ready Retrieval-Augmented Generation (RAG) system tailored for healthcare documents. It ensures reliable, grounded, and explainable answers by incorporating automated quality evaluation using RAGAS.
-
-Healthcare applications demand zero hallucination and high traceability. This system strictly bounds LLM responses to retrieved contexts, evaluates the quality of the generation, and provides document-level source attribution for every answer.
+A production-ready Retrieval-Augmented Generation (RAG) system for document-based question answering with automated evaluation using RAGAS. The system generates grounded and explainable responses by restricting answers to retrieved document context and providing source-level traceability.
+Implemented semantic retrieval, query rewriting, conversation-aware responses, and FastAPI-based APIs, along with faithfulness and answer relevancy evaluation to reduce hallucinations and improve response reliability.
 
 ## Features
 
