@@ -14,3 +14,7 @@ langchain-chroma
 ragas
 datasets
 accelerate
+
+fastapi
+uvicorn
+pydantic
